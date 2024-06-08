@@ -44,10 +44,10 @@
     </div>
     <div class="slider-container">
         <label for="position-slider">距离:</label>
-        <input type="range" id="position-slider" min="-0.1" max="0.1" step="0.001" value="0">
+        <input type="range" id="position-slider" min="-0.03" max="0.1" step="0.002" value="0">
         <span id="position-value" class="slider-value">0</span>
         <label for="angle-slider">角度:</label>
-        <input type="range" id="angle-slider" min="-0.0006" max="0.0006" step="0.00001" value="0">
+        <input type="range" id="angle-slider" min="-0.0006" max="0.0006" step="0.0002" value="0">
         <span id="angle-value" class="slider-value">0</span>
     </div>
 
@@ -57,7 +57,7 @@
 
     <script>
         // Initial parameters
-        const R = 1;
+        const R = 0.2;
         const wavelength = 632e-9;
         const x_max = 10000 * wavelength;
         const y_max = 10000 * wavelength;
@@ -76,14 +76,21 @@
             }
         }
 
-        const r = numeric.sqrt(numeric.add(numeric.pow(xx, 2), numeric.pow(yy, 2)));
+        // Rotate the coordinates by 90 degrees
+        const xx_rot = yy;
+        const yy_rot = numeric.neg(xx);
+
+        const r = numeric.sqrt(numeric.add(numeric.pow(xx_rot, 2), numeric.pow(yy_rot, 2)));
 
         // Calculate intensity distribution
         function calculateIntensity(d, theta) {
-            const dd = numeric.add(numeric.sqrt(numeric.add(numeric.pow(r, 2), Math.pow(R, 2))), 
+            let dd = numeric.add(numeric.sqrt(numeric.add(numeric.pow(r, 2), Math.pow(R, 2))), 
                 numeric.neg(numeric.sqrt(numeric.add(numeric.pow(r, 2), Math.pow(R + 2 * d, 2)))), 
-                numeric.mul(2, numeric.mul(xx, Math.tan(theta)))
+                numeric.mul(2, numeric.mul(numeric.mul(xx_rot, 60), Math.tan(theta)))
             );
+
+            dd = numeric.div(dd, 80);
+
             return numeric.pow(numeric.cos(numeric.mul(2 * Math.PI, numeric.div(dd, wavelength))), 2);
         }
 
